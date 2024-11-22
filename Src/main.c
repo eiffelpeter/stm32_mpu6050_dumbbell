@@ -240,7 +240,7 @@ int main(void)
 			mpu6050_tick = HAL_GetTick();
 
 			MPU6050_Read_All(&I2cHandle, &MPU6050);
-			printf("AccelX:%f, AccelY:%f, AccelZ:%f \n\r", MPU6050.Ax, MPU6050.Ay, MPU6050.Az);
+			//printf("AccelX:%f, AccelY:%f, AccelZ:%f \n\r", MPU6050.Ax, MPU6050.Ay, MPU6050.Az);
 
 			dumbbell_data.accel_x = MPU6050.Ax;
 			dumbbell_data.accel_y = MPU6050.Ay;
