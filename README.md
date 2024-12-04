@@ -21,7 +21,7 @@
   open `stm32_mpu6050_dumbbell.ioc` then generate code.  
 
 ## Build and program it
-  open `Project.uvprojx` by Keil.  
+  open `stm32_mpu6050_dumbbell.uvprojx` by Keil.  
   build and program stm32.  
 
 ## Open console log
