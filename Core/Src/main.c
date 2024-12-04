@@ -15,40 +15,27 @@
   *
   ******************************************************************************
   */
-#include <stdlib.h> 
-#include <math.h>
-#include <stdbool.h> 
-#include <stdio.h>
-#include "string.h"
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdlib.h> 
+#include <math.h>
+#include <stdbool.h> 
+#include <stdio.h>
+#include "string.h"
 #include "mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef enum 
-{  
-  AXIS_X = 0,
-  AXIS_Y = 1, 
-  AXIS_Z = 2 
+typedef enum {
+	AXIS_X = 0,
+	AXIS_Y = 1, 
+	AXIS_Z = 2 
 } SampleAxis_TypeDef; 
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-#define ACCEL_THRESHOLD_UP 1.0  
-#define ACCEL_THRESHOLD_DOWN -1.0  
-#define TRAINING_COUNT 10  
 
 typedef struct {
 	float accel_x;
@@ -63,7 +50,18 @@ typedef struct {
 	float trained_down_threshold;
 	SampleAxis_TypeDef sample_axis;
 } DumbbellData;
+/* USER CODE END PTD */
 
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+#define ACCEL_THRESHOLD_UP 1.0  
+#define ACCEL_THRESHOLD_DOWN -1.0  
+#define TRAINING_COUNT 10  
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -107,7 +105,7 @@ void dumbbell_train_and_recognize(void) {
 			dumbbell_data.sample_axis = AXIS_Y;
 			//printf("Training by AXIS_Y \n\r");
 
-		} else /*if ((fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_x)) && (fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_y)))*/ {
+		} else { /*if ((fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_x)) && (fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_y)))*/
 			dumbbell_data.sample_axis = AXIS_Z;
 			//printf("Training by AXIS_Z \n\r");
 
@@ -200,17 +198,15 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 	printf("MPU6050_Init");
-	while (MPU6050_Init(&hi2c1) == 1) 
-    {
-        printf(".");
-    }
+	while (MPU6050_Init(&hi2c1) == 1) {
+		printf(".");
+	}
 	printf(" successfully \n\r");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	while (1) {
 
 		// read every 100ms
 		if ((HAL_GetTick() - mpu6050_tick) > 100) {
@@ -229,19 +225,19 @@ int main(void)
 		if (HAL_GPIO_ReadPin(BTN_GPIO_Port, BTN_Pin) == GPIO_PIN_RESET) {
 			uint32_t button_pressed_tick = HAL_GetTick();
 			while (HAL_GPIO_ReadPin(BTN_GPIO_Port, BTN_Pin) == GPIO_PIN_RESET) {	 // wait until release
-                HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-                HAL_Delay(100);
-            }
+				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+				HAL_Delay(100);
+			}
 
 			// long press
 			if ((HAL_GetTick() - button_pressed_tick) > 2000) {
 				if (dumbbell_data.training_reps_done != 0) {
 					memset(&dumbbell_data, 0, sizeof(dumbbell_data));
 					printf("trig to train again\n\r");
-				} else 
-                    printf("already in train state\n\r");
-			} 
-            //else {
+				} else
+					printf("already in train state\n\r");
+			}
+			//else {
 			//	printf("button short press\n\r");
 			//}
 		}
@@ -250,17 +246,19 @@ int main(void)
 		if ((HAL_GetTick() - led_tick) > led_period) {
 			led_tick = HAL_GetTick();
 
-			if (dumbbell_data.training_reps_done == TRAINING_COUNT)
-				led_period = 500;
-			else
+			if (dumbbell_data.training_reps_done == TRAINING_COUNT) {
+				led_period = (led_period == 1000) ? 10 : 1000;
+                HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (led_period == 10) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+			}
+			else {
 				led_period = 1000;
-
-			HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+			}			
 		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -451,11 +449,10 @@ PUTCHAR_PROTOTYPE
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -470,8 +467,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	/* User can add his own implementation to report the file name and line number,
+	   ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
