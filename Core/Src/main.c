@@ -32,9 +32,10 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 typedef enum {
-	AXIS_X = 0,
-	AXIS_Y = 1, 
-	AXIS_Z = 2 
+    AXIS_UNKNOW = 0,
+    AXIS_X = 1,
+    AXIS_Y = 2, 
+    AXIS_Z = 3 
 } SampleAxis_TypeDef; 
 
 typedef struct {
@@ -91,26 +92,22 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void dumbbell_determine_which_axis_to_train(void) {
+    // determine which axix to sample
+    if ((fabs(dumbbell_data.accel_x) > fabs(dumbbell_data.accel_y)) && (fabs(dumbbell_data.accel_x) > fabs(dumbbell_data.accel_z))) {
+        dumbbell_data.sample_axis = AXIS_X;
+        printf("Training by AXIS_X \n\r");
+    } else if ((fabs(dumbbell_data.accel_y) > fabs(dumbbell_data.accel_x)) && (fabs(dumbbell_data.accel_y) > fabs(dumbbell_data.accel_z))) {
+        dumbbell_data.sample_axis = AXIS_Y;
+        printf("Training by AXIS_Y \n\r");
+    } else { /*if ((fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_x)) && (fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_y)))*/
+        dumbbell_data.sample_axis = AXIS_Z;
+        printf("Training by AXIS_Z \n\r");
+    }
+}
+
 void dumbbell_train_and_recognize(void) {
 	float temp;
-
-	// determine which axix to sample
-	if (dumbbell_data.training_reps_done == 0 ) {
-
-		if ((fabs(dumbbell_data.accel_x) > fabs(dumbbell_data.accel_y)) && (fabs(dumbbell_data.accel_x) > fabs(dumbbell_data.accel_z))) {
-			dumbbell_data.sample_axis = AXIS_X;
-			//printf("Training by AXIS_X \n\r");
-
-		} else if ((fabs(dumbbell_data.accel_y) > fabs(dumbbell_data.accel_x)) && (fabs(dumbbell_data.accel_y) > fabs(dumbbell_data.accel_z))) {
-			dumbbell_data.sample_axis = AXIS_Y;
-			//printf("Training by AXIS_Y \n\r");
-
-		} else { /*if ((fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_x)) && (fabs(dumbbell_data.accel_z) > fabs(dumbbell_data.accel_y)))*/
-			dumbbell_data.sample_axis = AXIS_Z;
-			//printf("Training by AXIS_Z \n\r");
-
-		}
-	}
 
 	// select axis data
 	switch (dumbbell_data.sample_axis) {
@@ -218,7 +215,10 @@ int main(void)
 			dumbbell_data.accel_x = MPU6050.Ax;
 			dumbbell_data.accel_y = MPU6050.Ay;
 			dumbbell_data.accel_z = MPU6050.Az;
-			dumbbell_train_and_recognize();
+			if (dumbbell_data.sample_axis == AXIS_UNKNOW )
+				dumbbell_determine_which_axis_to_train();
+			else
+				dumbbell_train_and_recognize();
 		}
 
 		/* User push-button press */
@@ -233,6 +233,7 @@ int main(void)
 			if ((HAL_GetTick() - button_pressed_tick) > 2000) {
 				if (dumbbell_data.training_reps_done != 0) {
 					memset(&dumbbell_data, 0, sizeof(dumbbell_data));
+					dumbbell_data.sample_axis = AXIS_UNKNOW;
 					printf("trig to train again\n\r");
 				} else
 					printf("already in train state\n\r");
