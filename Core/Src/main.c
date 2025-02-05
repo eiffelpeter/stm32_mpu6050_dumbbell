@@ -123,8 +123,6 @@ void dumbbell_train_and_recognize(void) {
 		break;
 	}
 
-
-
 	if (dumbbell_data.training_reps_done < TRAINING_COUNT) {
 		if (temp > dumbbell_data.accel_up_max) {
 			dumbbell_data.accel_up_max = temp;  
@@ -250,16 +248,16 @@ int main(void)
 			if (dumbbell_data.training_reps_done == TRAINING_COUNT) {
 				led_period = (led_period == 1000) ? 10 : 1000;
                 HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, (led_period == 10) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-			}
-			else {
+            } else {
 				led_period = 1000;
 				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 			}			
 		}
+
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	}
   /* USER CODE END 3 */
 }
 
