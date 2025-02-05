@@ -63,7 +63,8 @@ void Error_Handler(void);
 #define LED_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
-
+#define USE_BNO055
+//#define USE_MPU6050
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

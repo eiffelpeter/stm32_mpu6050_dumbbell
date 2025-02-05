@@ -412,6 +412,11 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\mpu6050.c</FilePath>
             </File>
+            <File>
+              <FileName>bno055.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\bno055.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

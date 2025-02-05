@@ -5,7 +5,7 @@
 [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)  
 
 ## Clone code
-`git clone --recursive  --depth 1 --branch v1.11.5 https://github.com/STMicroelectronics/STM32CubeF0.git`
+`git clone --recursive --depth 1 --branch v1.11.5 https://github.com/STMicroelectronics/STM32CubeF0.git`  
 `git clone https://github.com/eiffelpeter/stm32_mpu6050_dumbbell.git`  
 
 
@@ -19,10 +19,12 @@
 | I2C SDA | PB7 |
 
 ## Generate code by STM32CubeMX
-  open `stm32_mpu6050_dumbbell.ioc` then generate code.  ( select NO download firmware package )
+  open `stm32_mpu6050_dumbbell.ioc` then generate code.  
+  select NO download firmware package.  
 
 ## Build and program it
   open `stm32_mpu6050_dumbbell.uvprojx` by Keil.  
+  config imu USE_BNO055 or USE_MPU6050 in main.h.  
   build and program stm32.  
 
 ## Open console log
