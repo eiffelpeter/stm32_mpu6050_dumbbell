@@ -28,8 +28,10 @@
 #include "string.h"
 #ifdef USE_BNO055
 #include "bno055.h"
-#else
+#elif defined USE_MPU6050
 #include "mpu6050.h"
+#else
+#error please defined IMU
 #endif
 /* USER CODE END Includes */
 
@@ -78,8 +80,10 @@ UART_HandleTypeDef huart2;
 DumbbellData dumbbell_data = {0};
 #ifdef USE_BNO055
 struct bno055_t bno055;
-#else
+#elif defined USE_MPU6050
 MPU6050_t MPU6050;
+#else
+#error please defined IMU
 #endif
 /* USER CODE END PV */
 
@@ -106,11 +110,6 @@ static void MX_I2C1_Init(void);
  *  The following API is used to map the I2C bus read, write, delay and
  *  device address with global structure bno055_t
  *-------------------------------------------------------------------------*/
-
-
-/************** I2C buffer length******/
-//#define BNO055_I2C_BUS_WRITE_ARRAY_INDEX ((u8)1)
-//#define I2C_BUFFER_LEN 8
 
 /*-------------------------------------------------------------------*
  *
@@ -154,7 +153,6 @@ void BNO055_delay_msek(u32 msek) {
     HAL_Delay(msek);
 }
 
-
 /*-------------------------------------------------------------------------*
  *  By using bno055 the following structure parameter can be accessed
  *  Bus write function pointer: BNO055_WR_FUNC_PTR
@@ -171,6 +169,7 @@ s8 I2C_routine(void) {
     return BNO055_INIT_VALUE;
 }
 #endif
+
 void dumbbell_determine_which_axis_to_train(void) {
     // determine which axix to sample
     if ((fabs(dumbbell_data.accel_x) > fabs(dumbbell_data.accel_y)) && (fabs(dumbbell_data.accel_x) > fabs(dumbbell_data.accel_z))) {
@@ -285,13 +284,8 @@ int main(void)
         return -1;
     }
 
-    //printf(" bno055 chip_id: 0x%X is %s\n\r", bno055.chip_id, (0xA0 == bno055.chip_id) ? "correct" : "incorrect");  // chip id value 0xA0
+    //printf(" bno055 chip_id: 0x%X is %s\n\r", bno055.chip_id, (0xA0 == bno055.chip_id) ? "correct" : "incorrect");
 
-/*    if (BNO055_SUCCESS != bno055_set_power_mode(BNO055_POWER_MODE_NORMAL)) {
-        printf("set bno055 power mode fail \n\r");
-        return -1;
-    }
-*/
     if (BNO055_SUCCESS != bno055_set_operation_mode(BNO055_OPERATION_MODE_ACCONLY)) {
         printf("set bno055 operation mode fail \n\r");
         return -1;
@@ -311,11 +305,14 @@ int main(void)
         printf("set bno055 accel power mode fail \n\r");
         return -1;
     }
-#else
+
+#elif defined USE_MPU6050
 	printf("MPU6050_Init");
 	while (MPU6050_Init(&hi2c1) == 1) {
 		printf(".");
 	}
+#else
+#error please defined IMU
 #endif
 	printf(" successfully \n\r");
   /* USER CODE END 2 */
@@ -328,16 +325,17 @@ int main(void)
 		if ((HAL_GetTick() - imu_tick) > 100) {
 			imu_tick = HAL_GetTick();
 #ifdef USE_BNO055
-			//bno055_read_accel_xyz(&accel_xyz);
 			bno055_convert_float_accel_xyz_mg(&accel_xyz);
 			dumbbell_data.accel_x = accel_xyz.x/1000;
 			dumbbell_data.accel_y = accel_xyz.y/1000;
 			dumbbell_data.accel_z = accel_xyz.z/1000;
-#else
-			MPU6050_Read_All(&hi2c1, &MPU6050);
+#elif defined USE_MPU6050
+			MPU6050_Read_Accel(&hi2c1, &MPU6050);
 			dumbbell_data.accel_x = MPU6050.Ax;
 			dumbbell_data.accel_y = MPU6050.Ay;
 			dumbbell_data.accel_z = MPU6050.Az;
+#else
+#error please defined IMU
 #endif
 			//printf("AccelX:%f, AccelY:%f, AccelZ:%f \n\r", dumbbell_data.accel_x, dumbbell_data.accel_y, dumbbell_data.accel_z);
 
